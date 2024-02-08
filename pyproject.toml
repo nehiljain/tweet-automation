@@ -1,0 +1,22 @@
+[project]
+name = "tweet-automation"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "nehiljain", email = ""},
+]
+dependencies = [
+    "ollama>=0.1.6",
+    "litellm[proxy]>=1.23.2",
+    "instructor>=0.5.2",
+    "pendulum>=3.0.0",
+    "jupyterlab>=4.1.0",
+    "ipykernel>=6.29.2",
+]
+requires-python = "==3.11.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
