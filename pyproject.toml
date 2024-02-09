@@ -3,15 +3,21 @@ name = "tweet-automation"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [
-    {name = "nehiljain", email = ""},
+    {name = "nehiljain", email = "2761999+nehiljain@users.noreply.github.com"},
 ]
 dependencies = [
-    "ollama>=0.1.6",
-    "litellm[proxy]>=1.23.2",
-    "instructor>=0.5.2",
-    "pendulum>=3.0.0",
-    "jupyterlab>=4.1.0",
-    "ipykernel>=6.29.2",
+    "ollama",
+    "litellm",
+    "instructor",
+    "pendulum",
+    "jupyterlab",
+    "ipykernel",
+    "llama-index",
+    "notion-client>=2.2.1",
+    "thefuzz>=0.22.1",
+    "tdqm>=0.0.1",
+    "pydantic>=2.6.1",
+    "pandas",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"
