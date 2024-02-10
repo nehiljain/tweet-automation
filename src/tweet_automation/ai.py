@@ -29,6 +29,6 @@ generate_contrarian_tweet_from_inspiration_prompt = partial(
 )
 
 # TODO: write a func with story style tweets
-# TODO: write a func with ['Story', 'Listicle', 'CTA', 'Questioning community', 'Joke or meme', 'Lessons', 'Resources', 'Contrarian Take', 'Recipe', 'Past vs Present'] style tweets
+# TODO: write a func with ['Story', 'Listicle', 'Questioning community', 'Joke or meme', 'Lessons', 'Resources', 'Contrarian Take', 'Recipe', 'Past vs Present'] style tweets
 
 

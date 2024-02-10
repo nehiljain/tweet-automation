@@ -2,9 +2,10 @@
 import logging
 import os
 from copy import deepcopy
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 from dotenv import load_dotenv
+from notion2md.export import StringExporter
 from notion_client import Client
 from notion_client.helpers import iterate_paginated_api
 from pydantic import BaseModel
@@ -57,6 +58,37 @@ def get_pages_for_database(database_id: str, limit: int = None) -> List[dict]:
 def get_first_tweet_db_page():
     """Get the first tweet database page."""
     return get_pages_for_database("72f1b016-535b-4ba4-b10b-9c11143c0f52", 1)[0]
+
+
+def get_all_page_content_as_text(page_id: str) -> str:
+    """Get all the content of a page as text by fetching the child blocks."""
+    return StringExporter(block_id=page_id).export()
+
+
+# Write a function to query database with a filter for Tweet type CTA
+def get_tweets_type(tweet_type) -> Generator[dict, None, None]:
+    """Get all the pages that are not AI analyzed."""
+    # ID of the Library database found at https://www.notion.so/nehiljain/de9aae36d17246a789560747061dfcf5?v=35f15763dd59473180c15dbc3d6c88c5
+    database_id = "de9aae36d17246a789560747061dfcf5"
+    for page in iterate_paginated_api(
+        notion.databases.query,
+        database_id=database_id,
+        filter={
+            "property": "Tweet type ",
+            "select": {"equals": tweet_type},
+        },
+    ):
+        yield get_all_page_content_as_text(page["id"])
+
+
+# write a function to get all the tweet types and then get all the 5 (page limit) tweets for each type and return a collection of tweet type and tweets
+def get_all_tweets() -> List:
+    """Get all the pages that are not AI analyzed."""
+    tweet_types = get_all_tweet_types()
+    tweet_samples = {}
+    for tweet_type in tweet_types:
+        tweet_samples[tweet_type] = list(get_tweets_type(tweet_type))
+    return tweet_samples
 
 
 def create_new_tweet_db_page(title, tweet_type, source_title, tweet_text):
