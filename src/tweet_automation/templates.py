@@ -108,3 +108,151 @@ Here is information for the new tweet:
 ## Remember, at each step, try to match the style as closely as you can.
 """
 
+
+generate_template_style_tweet_from_inspiration_prompt = """
+You are a world-class (ghosgtwriter) for twitter tech influencer skilled at writing creative and highly engaging tweets. When given a tweet style, some inspirirational tweets and some information to use to create new tweet, you follow a strict two-step approach that always leads to great results.
+
+First, you create a tweet normally. The goal here isn’t to match the style — just complete the task in the most efficient way possible, with bland, clear, basic, yet high-quality writing.
+
+Second is the important part.
+
+- First, you will identify example tweets that are closest to this style of tweet (think about wording, phrasing, topic, length). Really think this through and reason about it properly. This is vital. Do this as a semicolon-separated list.
+- Then, based on that reasoning, you will rewrite the tweet to incorporate the suggested changes.
+- After you have rewritten the tweet to better match the target style, you will critique it, thinking about whether or not you feel good enough about it to consider your job complete.
+- **You will do this on repeat, until you feel confident that your job is done perfectly. Repeat no less than two times, and no more than ten times.**
+
+Here is the Markdown format you will use to respond:
+
+```markdown
+
+## Initial Tweet
+
+$initial_tweet
+
+---
+
+### Iteration 1
+
+#### Changes to Implement in Target Style
+
+$change1_for_iteration1; $change2_for_iteration1...
+
+#### Rewritten Tweet
+
+$rewritten_tweet_iteration1
+
+#### Critique
+
+$critique_iteration1
+
+---
+
+### Iteration 2
+
+#### Changes to Implement in Target Style
+
+$change1_for_iteration2; $change2_for_iteration2...
+
+#### Rewritten Tweet
+
+$rewritten_tweet_iteration2
+
+#### Critique
+
+$critique_iteration2
+
+---
+
+```
+
+---
+
+Here is your style description:
+
+```markdown
+{analysis_of_style}
+```
+
+Here are inspirational example(s) tweet(s). Use these to guide your work:
+
+```
+{tweet_example_blocks}
+```
+
+Here is information for the new tweet:
+
+```markdown
+{til_content}
+```
+
+## Remember, at each step, try to match the style as closely as you can.
+"""
+
+
+analyses_of_styles = {
+    "Contrarian Take": """
+
+""",
+    "Listicle": """
+## Analysis of Target Style
+
+- **Element 1**: Highlighting a specific number of items, points, or tools relevant to a topic.
+- **Element 2**: Providing concise descriptions or insights for each listed item.
+- **Element 3**: Including actionable advice or clear steps related to the topic.
+- **Element 4**: Embedding hyperlinks or referencing additional resources for further exploration.
+- **Element 5**: Encouraging reader engagement through direct calls to action or questions.
+- **Element 6**: Utilizing visual aids or emojis for emphasis and easier readability.
+
+## Style Description
+
+Name: Informative Curator in Digital Strategy
+
+Description: This style is characterized by its structured format that lists a specific number of items, points, or tools with concise descriptions or insights. It includes actionable advice, references additional resources, and often uses visual aids for emphasis. The goal is to inform, engage, and provide practical value to the audience on topics related to digital strategy, productivity, or professional development.
+
+""",
+    "HowTos": """## Analysis of Target Style
+
+- **Element 1**: Presentation of expert insights or predictions based on extensive experience.
+- **Element 2**: Step-by-step explanations or breakdowns of processes, techniques, or strategies.
+- **Element 3**: Use of specific examples or case studies to illustrate points.
+- **Element 4**: Incorporation of actionable advice or practical tips for the audience.
+- **Element 5**: Emphasis on the future implications or potential of a topic.
+- **Element 6**: Provision of resources, tools, or platforms to facilitate the discussed actions or strategies.
+
+## Style Description
+
+Name: Practical Futurist in Professional Development
+
+Description: This style focuses on delivering expert insights and predictions, detailed step-by-step guides, and actionable advice in a clear and authoritative manner. It emphasizes the future implications of current trends and provides practical tips, often backed by specific examples or case studies, aiming to equip the audience with the knowledge and resources needed to navigate professional or technical landscapes effectively.
+
+---""",
+    "Resources": """
+## Analysis of Target Style
+
+- **Element 1**: Presentation of valuable resources or insights in a straightforward, accessible manner.
+- **Element 2**: Highlighting the practical applications and benefits of the resources shared.
+- **Element 3**: Use of calls to action, encouraging readers to explore further by providing links or asking for engagement (likes, retweets).
+- **Element 4**: Sharing personal experiences or stories to make the information relatable and credible.
+- **Element 5**: Incorporation of multimedia elements (images, videos) or external links to enhance the message and provide additional context.
+- **Element 6**: Offering exclusive or time-sensitive opportunities to create urgency and increase engagement.
+
+## Style Description
+
+Name: Resourceful Connector in Tech and Career Development
+
+Description: This style is marked by its direct, impactful communication of valuable resources and insights, often related to technology and career advancement. It effectively combines personal narratives or experiences with practical advice, highlighted through calls to action and multimedia elements, aiming to inform, engage, and motivate the audience towards beneficial opportunities or learning paths.
+
+""",
+    "Story": """
+## Analysis of Target Style
+- Element 1: Use of concise and impactful language to convey complex information or achievements.
+- Element 2: Incorporation of statistics and milestones to underscore progress or success.
+- Element 3: Use of visuals or links (such as images, videos, charts) to enhance the narrative or provide evidence.
+- Element 4: Direct address to the audience or sharing personal insights to create engagement.
+- Element 5: Highlighting the novelty or effectiveness of a strategy, tool, or approach.
+- Element 6: Providing a clear call to action or sharing additional resources for further engagement.
+
+##Style Description
+Name: Engaging Storyteller in Tech and Business
+Description: This style is characterized by its succinct, impactful delivery of complex information or achievements, often leveraging statistics and visual aids to underscore key points. It engages the audience by sharing personal insights or direct calls to action, effectively highlighting innovative strategies or tools within the tech and business landscape.""",
+}

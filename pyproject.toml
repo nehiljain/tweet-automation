@@ -12,12 +12,14 @@ dependencies = [
     "pendulum",
     "jupyterlab",
     "ipykernel",
-    "llama-index",
-    "notion-client>=2.2.1",
-    "thefuzz>=0.22.1",
-    "tdqm>=0.0.1",
-    "pydantic>=2.6.1",
+    "notion-client",
+    "thefuzz",
+    "tdqm",
+    "pydantic",
     "pandas",
+    "notion2md",
+    "setuptools>=69.0.3",
+    "ipdb>=0.13.13",
 ]
 requires-python = "==3.11.*"
 readme = "README.md"

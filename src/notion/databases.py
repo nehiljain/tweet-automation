@@ -1,17 +1,16 @@
 """Functions for the Notion Assistant."""
-import logging
 import os
 from copy import deepcopy
 from typing import Generator, List, Optional
 
 from dotenv import load_dotenv
-from notion2md.export import StringExporter
+import pandas as pd
+import pendulum
+from notion2md.exporter.block import StringExporter
 from notion_client import Client
 from notion_client.helpers import iterate_paginated_api
 from pydantic import BaseModel
 from thefuzz import fuzz
-
-logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 notion = Client(auth=os.environ["NOTION_TOKEN"])
@@ -32,14 +31,9 @@ def get_all_tweet_types() -> List:
     database_id = "de9aae36d17246a789560747061dfcf5"
     tweet_types = set()
     for page in iterate_paginated_api(notion.databases.query, database_id=database_id):
-        tweet_type = (
-            page.get("properties", {})
-            .get("Tweet type ", {})
-            .get("select", {})
-            .get("name")
-        )
+        tweet_type = page.get("properties", {}).get("Tweet type ", {}).get("select", {})
         if tweet_type:
-            tweet_types.add(tweet_type)
+            tweet_types.add(tweet_type.get("name"))
     return list(tweet_types)
 
 
@@ -57,6 +51,8 @@ def get_pages_for_database(database_id: str, limit: int = None) -> List[dict]:
 
 def get_first_tweet_db_page():
     """Get the first tweet database page."""
+    # TODO:  Make it always get this page as template page
+    get_id = "303210ad98a744378dfd1e5b94226cc6"
     return get_pages_for_database("72f1b016-535b-4ba4-b10b-9c11143c0f52", 1)[0]
 
 
@@ -65,8 +61,8 @@ def get_all_page_content_as_text(page_id: str) -> str:
     return StringExporter(block_id=page_id).export()
 
 
-# Write a function to query database with a filter for Tweet type CTA
-def get_tweets_type(tweet_type) -> Generator[dict, None, None]:
+# Write a function to query database with a filter for Tweet type
+def get_tweets_for_a_type(tweet_type) -> Generator[dict, None, None]:
     """Get all the pages that are not AI analyzed."""
     # ID of the Library database found at https://www.notion.so/nehiljain/de9aae36d17246a789560747061dfcf5?v=35f15763dd59473180c15dbc3d6c88c5
     database_id = "de9aae36d17246a789560747061dfcf5"
@@ -81,14 +77,48 @@ def get_tweets_type(tweet_type) -> Generator[dict, None, None]:
         yield get_all_page_content_as_text(page["id"])
 
 
+def get_tweet_examples_block(tweet_examples: pd.DataFrame, tweet_type: str) -> str:
+    """Get the tweet examples block."""
+    tweet_blocks = """
+----------
+Example {num}
+----------
+{tweet_example}"""
+    df = tweet_examples.copy()
+    # write a function to sample 3 tweets from df given a tweet_type
+    sample = df[df["tweet_type"] == tweet_type].sample(3)
+    tweet_blocks = """
+    ----------
+    Example {num}
+    ----------
+    {tweet_example}"""
+    return " \n".join(
+        [
+            tweet_blocks.format(tweet_example=val, num=num)
+            for num, val in enumerate(sample["tweet"].tolist(), start=1)
+        ]
+    )
+
+
 # write a function to get all the tweet types and then get all the 5 (page limit) tweets for each type and return a collection of tweet type and tweets
-def get_all_tweets() -> List:
+def get_all_tweets() -> pd.DataFrame:
     """Get all the pages that are not AI analyzed."""
     tweet_types = get_all_tweet_types()
     tweet_samples = {}
     for tweet_type in tweet_types:
-        tweet_samples[tweet_type] = list(get_tweets_type(tweet_type))
-    return tweet_samples
+        tweet_samples[tweet_type] = list(get_tweets_for_a_type(tweet_type))
+    return pd.DataFrame(
+        {
+            "tweet_type": [
+                key
+                for key in tweet_samples.keys()
+                for _ in range(len(tweet_samples[key]))
+            ],
+            "tweet": [
+                tweet for key in tweet_samples.keys() for tweet in tweet_samples[key]
+            ],
+        }
+    )
 
 
 def create_new_tweet_db_page(title, tweet_type, source_title, tweet_text):
@@ -101,7 +131,11 @@ def create_new_tweet_db_page(title, tweet_type, source_title, tweet_text):
     new_properties["Source Title"]["rich_text"][0]["plain_text"] = source_title
     new_properties["Title"]["title"][0]["text"]["content"] = title
     new_properties["Title"]["title"][0]["plain_text"] = title
-
+    new_properties.get("properties", {}).get("Should_Publish", {})["checkbox"] = False
+    new_properties.get("properties", {}).get("Archive", {})["checkbox"] = False
+    new_properties["created_at"] = pendulum.now().to_datetime_string()
+    del new_properties["Created time"]
+    del new_properties["Last edited time"]
     return notion.pages.create(
         **{"parent": {"database_id": database_id}, "properties": new_properties}
     )

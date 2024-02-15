@@ -13,7 +13,12 @@ def read_md_files(directory):
     # filter out the files that are not in the TIL directory
     # filter out files with no content or empty content
     files = list(p.glob("**/*.md"))
-    files = [file for file in files if "TILs" in str(file)]
+    files = [
+        file
+        for file in files
+        # if "TILs" in str(file) or "Posts" in str(file)
+        if "Tweet Raw Material" in str(file)
+    ]
     files = [file for file in files if file.stat().st_size > 0]
     # return a collection of filepath, filename and content
     return [

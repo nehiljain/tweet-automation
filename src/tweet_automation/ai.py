@@ -1,34 +1,30 @@
 
-import logging
-from functools import partial
+from llama_index.llms import Ollama
 
-from llama_index.llms import CompletionResponse, Ollama
+from .templates import (
+    analyses_of_styles,
+    generate_template_style_tweet_from_inspiration_prompt,
+)
 
-from tweet_automation.templates import generate_contrarian_tweet_from_inspiration_prompt
-
-logging.basicConfig(level=logging.DEBUG)
 
 # TODO: Convert to async
 def generate_tweet_from_inspiration_prompt(
-    prompt: str, tweet_content
-) -> CompletionResponse:
+    tweet_type: str, tweet_example_blocks: str, til_content: str
+) -> str:
     """
     Generate a tweet from an inspiration prompt.
     """
     llm = Ollama(model="mistral", request_timeout=300.0)
-    prompt_str = prompt.format(til_content=tweet_content)
-    print(f"Prompt: {prompt_str}")
-    resp = llm.complete(prompt_str)
-    return resp
 
+    if tweet_type in analyses_of_styles:
+        prompt_str = generate_template_style_tweet_from_inspiration_prompt.format(
+            analysis_of_style=analyses_of_styles[tweet_type],
+            tweet_example_blocks=tweet_example_blocks,
+            til_content=til_content,
+        )
+        # print(f"Prompt: {prompt_str}")
+        resp = llm.complete(prompt_str)
+        print(f"Response AI:\n\n {resp.text}")
 
-# write a new function to generate a tweet from an inspiration prompt using generate_contratian_tweet_from_inspiration_prompt
-generate_contrarian_tweet_from_inspiration_prompt = partial(
-    generate_tweet_from_inspiration_prompt,
-    generate_contrarian_tweet_from_inspiration_prompt,
-)
-
-# TODO: write a func with story style tweets
-# TODO: write a func with ['Story', 'Listicle', 'Questioning community', 'Joke or meme', 'Lessons', 'Resources', 'Contrarian Take', 'Recipe', 'Past vs Present'] style tweets
-
-
+        return resp.text
+    return ""
